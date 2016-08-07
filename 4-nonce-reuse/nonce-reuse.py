@@ -19,14 +19,13 @@ class CharacterFound(Exception):
 
 for character in range(int(len(xor_ps) / 7)):
     ps_char = xor_ps[(character*7):((character+1)*7)]
-    print(ps_char)
     try:
-        for i in range(32, 128):
-            for j in range(32, 128):
+        for i in range(32, 127):
+            for j in range(32, 127):
                 xor = i ^ j
                 xor = bin(xor)[2:]
                 if xor == ps_char:
-                    print("{},{}".format(i,j))
+                    print("{},{}".format(chr(i),chr(j)))
                     raise CharacterFound
     except CharacterFound:
         continue
