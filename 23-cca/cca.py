@@ -2,6 +2,7 @@
 
 import binascii
 import rsa
+import sys
 import urllib.request
 
 # Import the server public key
@@ -25,9 +26,33 @@ c_prod = hex(c_prod)[2:] # Remove the "0x"
 # plaintext of the given ciphertext
 response = urllib.request.urlopen("https://id0-rsa.pub/problem/rsa_oracle/{}".format(c_prod))
 prod = response.read()
+prod = int(prod, 16)
 
-# Multiple the prod by the inverse of the "arbitrary" message module n to find
-# the plaintext of the given ciphertext
-i_r = ( 1 / r ) % pubk.n
+
+# Find the multiplicative modular inverse of r modulo n
+# https://en.wikibooks.org/wiki/Algorithm_Implementation/Mathematics/Extended_Euclidean_algorithm
+sys.setrecursionlimit(1000000)  # long type,32bit OS 4B,64bit OS 8B(1bit for sign)
+
+# return (g, x, y) a*x + b*y = gcd(x, y)
+def egcd(a, b):
+    if a == 0:
+        return (b, 0, 1)
+    else:
+        g, x, y = egcd(b % a, a)
+        return (g, y - (b // a) * x, x)
+
+# x = mulinv(b) mod n, (x * b) % n == 1
+def mulinv(b, n):
+    g, x, _ = egcd(b, n)
+    if g == 1:
+        return x % n
+
+i_r = mulinv(r, pubk.n)
+
+# Multiple the prod by the inverse of r module n to find the plaintext of the
+# given ciphertext
 p = (prod * i_r) % pubk.n
+p = hex(p)[2:]
+print(p)
+p = binascii.unhexlify(p)
 print(p)
