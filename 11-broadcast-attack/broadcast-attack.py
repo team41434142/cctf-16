@@ -50,9 +50,13 @@ ccs = sorted(ccs, key=lambda cc: cc.n, reverse=True)
 for i in range(cprod // ccs[0].n):
     c = ccs[0].c + (ccs[0].n * i)
     if ((c % ccs[1].n) == ccs[1].c):
-        print("hit")
-        if ((c % ccs[2].n) == ccs[2].c):
-            break
+        print("First step complete!")
+        c_old = c
+        for i in range((cprod - c) // (ccs[0].n * ccs[1].n)):
+            c = c_old + (i * ccs[0].n * ccs[1].n)
+            if ((c % ccs[2].n) == ccs[2].c):
+                break
+        raise ValueError
 
 m = pow(c, 1/3)
 m = hex(m)[2:]
